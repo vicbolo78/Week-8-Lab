@@ -41,51 +41,39 @@
 
     <!-- Page content -->
     <div class="container-fluid">
-            <h2>{{ course.name }}</h2>
-            <div class="card-columns-vertical">
-                {% for lesson in course.lesson_set.all %}
-                    <div class="card mt-1">
-                        <div class="card-header"><h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5></div>
-                        <div class="card-body">{{lesson.content}}</div>
+        {% if grade >= 80 %}
+        <div class="alert alert-success">
+            <b>Congratulations, {{ user.first_name }}!</b> You have passed the exam and completed the course with score {{ grade }}/100
+        </div>
+        {% else %}
+        <div class="alert alert-danger">
+            <b>Failed</b> Sorry, {{ user.first_name }}! You have failed the exam with score {{ grade }}/100
+        </div>
+        <a class="btn btn-link text-danger" href="{% url 'onlinecourse:course_details' course.id %}">Re-test</a>
+        {% endif %}
+        <div class="card-columns-vertical mt-1">
+            <h5 class="">Exam results</h5>
+            {% for question in course.question_set.all %}
+            <div class="card mt-1">
+                <div class="card-header"><h5>{{ question.content }}</h5></div>
+                <div class="form-group">
+                    {% for choice in question.choice_set.all %}
+                    <div class="form-check">
+                        {% if choice.is_correct and choice in choices %}
+                        <div class="text-success">Correct answer: {{ choice.content }}</div>
+                        {% else %}{% if choice.is_correct and not choice in choices %}
+                        <div class="text-warning">Not selected: {{ choice.content }}</div>
+                        {% else %}{% if not choice.is_correct and choice in choices %}
+                        <div class="text-danger">Wrong answer: {{ choice.content }}</div>
+                        {% else %}
+                        <div>{{ choice.content }}</div>
+                        {% endif %}{% endif %}{% endif %}
                     </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
             </div>
-            <!-- Task: show questions and choices -->
-            <!-- <HINT> Use Bootstrap Collapse to hide exam first, more details could be found here
-            https://www.w3schools.com/bootstrap4/bootstrap_collapse.asp-->
-
-            <!-- A collapse example here: -->
-            {% if user.is_authenticated %}
-            </br>
-            <button class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>
-            <div id="exam" class="collapse">
-                <form id="questionform" action="{% url 'onlinecourse:submit' course.id %}" method="POST">
-                    {% for question in course.question_set.all %}
-                    <div class="card mt-1">
-                        <div class="card-header"><h5>{{ question.text }}</h5></div>
-                            {% csrf_token %}
-                            <div class="form-group">
-                                {% for choice in question.choice_set.all %}
-                                ... for each choice in the question ...
-                                <div class="form-check">
-                                    <label class="form-check-label">
-                                        <input type="checkbox" name="choice_{{choice.id}}"
-                                               class="form-check-input" id="{{choice.id}}"
-                                               value="{{choice.id}}">{{ choice.choice_text }}
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        {% endfor %}
-                    <input class="btn btn-success btn-block" type="submit" value="Submit">
-            </form> 
-
-                      
-
-            <!--Check here to see more details Bootstrap checkbox
-             https://www.w3schools.com/bootstrap4/bootstrap_forms_inputs.asp-->
+            {% endfor %}
+        </div>
     </div>
-    {% endfor %}
 </body>
 </html>
