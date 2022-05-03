@@ -1,11 +1,11 @@
   applications:
   - name: onlinecourse-app
     routes:
-      - route: host.domain
+      - route: victor.apic.us-east.mybluemix.net
     memory: 128M
     buildpack: python_buildpack
   - name: onlinecourse-nginx
     routes:
-      - route: host.domain/static
+      - route: victor.apic.us-east.mybluemix.net/static
     memory: 128M
     buildpack: staticfile_buildpack
